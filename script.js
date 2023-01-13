@@ -12,10 +12,11 @@ function addNote(event) {
         <h2>${noteText}</h2>
         <button class="star-note">&#11088;</button>
         <button class="delete-note">Delete</button>
-        `;
+        `
+        ;
     document.getElementById("note-text").value = "";
     note.draggable = true;
-    notesContainer.appendChild(note);
+    notesContainer.append(note);
     note.addEventListener('dragstart', handleDragStart);
     note.addEventListener('dragover', handleDragOver);
     note.addEventListener('drop', handleDrop);
@@ -44,42 +45,52 @@ notesContainer.addEventListener("click", starNote);
 
 let draggedItem;
 
-function handleDragStart(e) {
-    draggedItem = e.target;
+function handleDragStart(event) {
+    draggedItem = event.target;
 }
 
-function handleDragEnd(e) {
-    e.target.style.opacity = '1';
+function handleDragEnd(event) {
+    event.target.style.opacity = '1';
 }
 
-function handleDragOver(e) {
-    e.preventDefault();
+function handleDragOver(event) {
+    event.preventDefault();
 }
 
-function handleDrop(e) {
-    e.preventDefault();
-    if (draggedItem === e.target) {
+function handleDrop(event) {
+    event.preventDefault();
+    if (draggedItem === event.target) {
         return;
     }
-    if(e.target.classList.contains('notes-container')){
-        e.target.appendChild(draggedItem);
+    if(event.target.classList.contains('notes-container')){
+        event.target.appendChild(draggedItem);
     }
-    e.target.parentNode.insertBefore(draggedItem, e.target);
+    event.target.parentNode.insertBefore(draggedItem, event.target);
 }
 
-// Saving a new note
-function saveNote(note) {
-    // Get the existing notes from local storage
-    let notes = JSON.parse(localStorage.getItem("notes")) ||  [];
-
-    // Add the new note to the array
-    notes.push(note);
-
-    // Save the updated array to local storage
-    localStorage.setItem("notes", JSON.stringify(notes));
+function saveNote() {
+    const notes = document.querySelectorAll('#notes-container');
+    const notesArray = [];
+    notes.forEach(note => {
+        notesArray.push(note.innerHTML);
+    });
+    localStorage.setItem("notes", JSON.stringify(notesArray));
 }
 
-// Retrieving the notes
-function getNotes() {
-    return JSON.parse(localStorage.getItem("notes")) || [];
+
+function loadNotes() {
+    const notesString = localStorage.getItem("notes");
+    console.log(notesString);
+    if (notesString) {
+        const notesArray = JSON.parse(notesString);
+        notesArray.forEach(noteHtml => {
+            const newNote = document.createElement('reload');
+            newNote.innerHTML = noteHtml;
+            document.querySelector('#notes-container').appendChild(newNote);
+        });
+    }
 }
+window.addEventListener('unload', saveNote)
+window.addEventListener('load', loadNotes);
+
+
